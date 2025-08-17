@@ -1,8 +1,18 @@
-# Uniswap v4 Hook Template
+# ⛓️ Cross-Chain Volatility Hook 🪝
+Dynamic fee Uniswap v4 Hook using cross-chain Chainlink volatility data via LayerZero
 
-**A template for writing Uniswap v4 Hooks 🦄**
+**Summary:** This project implements a Uniswap v4 hook that dynamically adjusts trading fees based on real-time volatility data sourced from multiple blockchains. By leveraging Chainlink's price feeds on Arbitrum and transmitting this data via LayerZero's cross-chain messaging protocol, the hook creates a more responsive and risk-adjusted fee structure for liquidity providers.
 
-### Get Started
+**Technical Architecture:** The system consists of three core components: a data ingestion contract on Arbitrum that reads Chainlink's ETH-USD 30-Day Realized Vol metric, a LayerZero bridge integration that securely transmits volatility data across chains with minimal latency, and a Uniswap v4 hook contract that receives cross-chain volatility updates and implements dynamic fee adjustments in the beforeSwap function.
+
+## ETHGlobal NYC August 2025 Team
+[Marcus Wentz](https://github.com/MarcusWentz)
+[Dina Deljanin](https://github.com/dinadeljanin)
+[Mylo Bennett](https://github.com/readyMouse)
+
+
+## Leveraging the Uniswap v4 Hook Template
+(original template README below)
 
 This template provides a starting point for writing Uniswap v4 Hooks, including a simple example and preconfigured test environment. Start by creating a new repository using the "Use this template" button at the top right of this page. Alternatively you can also click this link:
 
@@ -84,13 +94,89 @@ Hook deployment failures are caused by incorrect flags or incorrect salt mining
 - [v4-core](https://github.com/uniswap/v4-core)
 - [v4-by-example](https://v4-by-example.org)
 
-### Deploy ChainlinkEthVolatilityIndex30Day.sol on Arbitrum Sepolia
+## Forge Deploy and Verify  
+
+### Arbitrum Sepolia 
+
+#### Deploy EthRealizedVolatility.sol 
 
 ```shell
-forge create src/ChainlinkEthVolatilityIndex30Day.sol:ChainlinkEthVolatilityIndex30Day \
+forge create src/EthRealizedVolatility.sol:EthRealizedVolatility \
 --private-key $devTestnetPrivateKey \
 --rpc-url $arbitrumSepoliaHTTPS  \
 --etherscan-api-key $arbiscanApiKey \
 --broadcast \
 --verify 
 ```
+
+#### Deploy LayerZeroArbToUniOApp.sol
+
+```shell
+forge create src/LayerZeroArbToUniOApp.sol:LayerZeroArbToUniOApp \
+--private-key $devTestnetPrivateKey \
+--rpc-url $arbitrumSepoliaHTTPS  \
+--etherscan-api-key $arbiscanApiKey \
+--broadcast \
+--verify 
+```
+
+### Unichain Sepolia
+
+### EthUsd.sol
+
+```shell
+forge create src/EthUsd.sol:EthUsd \
+--private-key $devTestnetPrivateKey \
+--rpc-url https://sepolia.unichain.org \
+--verify \
+--verifier blockscout \
+--verifier-url https://unichain-sepolia.blockscout.com/api/ \
+--broadcast
+```
+
+### LayerZeroUniToArbOApp.sol
+
+```shell
+forge create src/LayerZeroUniToArbOApp.sol:LayerZeroUniToArbOApp \
+--private-key $devTestnetPrivateKey \
+--rpc-url https://sepolia.unichain.org \
+--verify \
+--verifier blockscout \
+--verifier-url https://unichain-sepolia.blockscout.com/api/ \
+--broadcast
+```
+
+### Verify Blockscout Contract Already Deployed
+
+```shell
+forge verify-contract \
+--rpc-url https://sepolia.unichain.org \
+<contract_address> \
+<contract_file_path> \
+--verifier blockscout \
+--verifier-url https://unichain-sepolia.blockscout.com/api/
+```
+
+### Arbitrum Sepolia Deployments
+
+#### EthRealizedVolatility.sol 
+
+https://sepolia.arbiscan.io/address/0xeef4f98dd12fcc6193ccce792f3983803d0b56ed#code
+
+#### LayerZeroArbToUniOApp.sol
+
+https://sepolia.arbiscan.io/address/0xc26ea02fb53594952b64559278bd0622555584e4#code
+
+### Unichain Sepolia Deployments
+
+#### EthUsd.sol 
+
+https://unichain-sepolia.blockscout.com/address/0xE00fAe47783A593f3975A13Dec9D957A437d1118?tab=contract
+
+#### LayerZeroUniToArbOApp.sol
+
+https://unichain-sepolia.blockscout.com/address/0x5eCe667D03F29695937F23178aBad9B89434D630?tab=contract
+
+### LayerZero Bridge Communication
+
+https://testnet.layerzeroscan.com/tx/0xda4bf9ba8f106471dc60e2d75f1201d2cb33c7d223128fdcd9059559f0f0e151
